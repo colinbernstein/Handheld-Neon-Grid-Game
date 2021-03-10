@@ -1,3 +1,10 @@
+/**
+   Author: Colin Bernstein
+   Title: Handheld 6x6 Multiplexed Neon Bulb Animation
+*/
+
+
+//Define GPIO pins and instance variables
 const byte cathode[] = {2, 3, 4, 5, 6, 7}, anode[] = {8, 9, 10, 11, 12, 13};
 const int tickRate = 300;
 unsigned long lastTick;
@@ -5,11 +12,13 @@ boolean flip, grid[6][6];
 
 double n = 0.0;
 
+//Define the output mode of relevant pins
 void setup() {
   for (byte i = 2; i <= 13; i++)
     pinMode(i, OUTPUT);
 }
 
+//Constnatly multiplex and iterate the cyclic animation pattern
 void loop() {
   multPlex();
   if (millis() - lastTick >= tickRate) {
@@ -23,6 +32,8 @@ void loop() {
   }
 }
 
+//Multiplex through the columns by flashing a column at a
+//time and outputting the six row elements each time
 void multPlex() {
   for (byte col = 0; col < 6; col++) {
     for (byte row = 0; row < 6; row++) {
@@ -38,6 +49,7 @@ boolean inBounds(byte i, byte j) {
   return i >= 0 && j >= 0 && i < 6 && j < 6;
 }
 
+//Return the number of neighbors to a given point
 byte neighbors(byte i, byte j) {
   byte ret = 0;
   byte dx[] = {0, 0, 1, -1, 1, 1, -1, -1};

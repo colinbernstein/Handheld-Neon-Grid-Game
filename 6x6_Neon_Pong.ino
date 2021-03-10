@@ -1,3 +1,10 @@
+/**
+   Author: Colin Bernstein
+   Title: Handheld 6x6 Multiplexed Neon Bulb Pong Game
+*/
+
+
+//Define GPIO pins and instance variables
 const byte cathode[] = {2, 3, 4, 5, 6, 7}, anode[] = {8, 9, 10, 11, 12, 13};
 unsigned long lastBlink, lastTick;
 boolean ticking, blinking, holding = false, grid[6][6];
@@ -9,6 +16,7 @@ unsigned long last, timeStamp;
 
 boolean twoPlayer = false;
 
+//Initizalize hard-wired inputs and outputs
 void setup() {
   for (byte i = 2; i <= 13; i++)
     pinMode(i, OUTPUT);
@@ -16,6 +24,8 @@ void setup() {
     pinMode(i, INPUT_PULLUP);
 }
 
+//Constantly multiplex, check for button presses, 
+//draw the state of the grid, and update the position of the ball.
 void loop() {
   multPlex();
   checkButtons();
@@ -27,6 +37,9 @@ void loop() {
   }
 }
 
+//If one-player, have the AI make a move.
+//Simply moves to the left or right depending on the
+//Position of the ball.
 void AI() {
   if (millis() % 4 > 0)
     if (leftGuyPos < 4 && leftGuyPos < ballY)
@@ -34,6 +47,9 @@ void AI() {
     else if (leftGuyPos > 1 && leftGuyPos > ballY)
       leftGuyPos--;
 }
+
+//Multiplex through the columns by flashing a 
+//column at a time and outputting the six row elements each time
 
 void multPlex() {
   for (byte col = 0; col < 6; col++) {
@@ -46,6 +62,7 @@ void multPlex() {
   }
 }
 
+//Update the position of the ball knowing its current trajectory and positon 
 void refreshBall() {
   last = millis();
   grid[ballX][ballY] = false;
@@ -69,6 +86,7 @@ void refreshBall() {
     win(true);
 }
 
+//Play a winning animation for the left or right side players
 void win(boolean left) {
   for (byte i = 0; i < 3; i++) {
     for (byte a = 0; a < 6; a++)
@@ -89,12 +107,16 @@ void win(boolean left) {
   x = left ? 1 : -1;
 }
 
+//Blank the grid
 void blank() {
   for (byte a = 0; a < 6; a++)
     for (byte b = 0; b < 6; b++)
       grid[a][b] = false;
 }
 
+//Check for button presses
+//Adjust the position of the players accordingly
+//If a button is pressed, a button is now being held
 void checkButtons() {
   if (twoPlayer) {
     if (!holding && !digitalRead(17) && !leftGuyHasTheBall)
@@ -146,6 +168,7 @@ void checkButtons() {
     holding = false;
 }
 
+//Display the paddles
 void drawGuys() {
   blank();
   for (byte y = leftGuyPos - 1; y <= leftGuyPos + 1; y++)

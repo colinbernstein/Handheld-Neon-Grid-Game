@@ -1,9 +1,18 @@
+/**
+   Author: Colin Bernstein
+   Title: Handheld 6x6 Multiplexed Neon Bulb Conway's Game of Life Simulation
+*/
+
+
+//Define GPIO pins and instance variables
 byte x, y;
 const byte cathode[] = {2, 3, 4, 5, 6, 7}, anode[] = {8, 9, 10, 11, 12, 13};
 const int blinkRate0 = 300, blinkRate1 = 100, tickRate = 1000;
 unsigned long lastBlinkOn, lastBlinkOff, lastTick;
 boolean ticking, blinking, holding = false, grid[6][6];
 
+//Initizalize hard-wired inputs and outputs
+//Zero the grid
 void setup() {
   for (byte i = 2; i <= 13; i++)
     pinMode(i, OUTPUT);
@@ -14,6 +23,8 @@ void setup() {
       grid[a][b] = a % b == 1;
 }
 
+//Constantly multiplex 
+//Cycle blinking for alive states
 void loop() {
   multPlex();
   if (!ticking) {
@@ -46,6 +57,9 @@ void loop() {
   checkButtons();
 }
 
+//Check for button presses
+//Adjust the position of the cursor accordingly
+//If a button is pressed, a button is now being held
 void checkButtons() {
   if (!holding && !digitalRead(14)) { //toggle ticking
     holding = true;
@@ -80,6 +94,7 @@ void checkButtons() {
     holding = false;
 }
 
+//Multiplex through the columns by flashing a column at a time and outputting the six row elements each time
 void multPlex() {
   for (byte col = 0; col < 6; col++) {
     for (byte row = 0; row < 6; row++) {
@@ -96,6 +111,8 @@ boolean inBounds(byte i, byte j) {
   return i >= 0 && j >= 0 && i < 6 && j < 6;
 }
 
+//Find the next generation of the current configuration 
+//of the grid using a Conway's Game of Life automata
 void nextGenerationConway() {
   boolean next[6][6];
   for (byte i = 0; i < 6; i++)
@@ -115,6 +132,7 @@ void nextGenerationConway() {
       grid[i][j] = next[i][j];
 }
 
+//Find a nearest-neighbors favored style next generation 
 void nextGeneration() {
   boolean next[6][6];
   for (byte i = 0; i < 6; i++)
@@ -134,6 +152,7 @@ void nextGeneration() {
       grid[i][j] = next[i][j];
 }
 
+//Return the number of neighbors to a given point
 byte neighbors(byte i, byte j) {
   byte ret = 0;
   byte dx[] = {0, 0, 1, -1, 1, 1, -1, -1};
